@@ -95,9 +95,9 @@
 <div id="app"></div>
 <script>
 "use strict";
- 
+
 /* ─────────────────────────  DATA  ───────────────────────── */
- 
+
 var PLAN = [
  {w:1,ph:1, 1:{t:"easy",d:5,l:"Easy Run",n:"7:00–7:30/km · conversational"}, 3:{t:"strides",d:6,l:"Easy + Strides",n:"5 km easy + 4×100 m strides"}, 5:{t:"easy",d:5,l:"Easy Run",n:"7:00–7:30/km"}, 0:{t:"long",d:8,l:"Long Run",n:"7:00–7:20/km · slow & steady"}},
  {w:2,ph:1, 1:{t:"easy",d:5,l:"Easy Run",n:"7:00–7:30/km"}, 3:{t:"tempo",d:6,l:"Tempo Intervals",n:"WU + 3×1 km @ 5:50/km + CD"}, 5:{t:"easy",d:5,l:"Easy Run",n:"7:00–7:30/km"}, 0:{t:"long",d:9,l:"Long Run",n:"7:00–7:20/km"}},
@@ -113,7 +113,7 @@ var PLAN = [
  {w:12,ph:4, 1:{t:"easy",d:6,l:"Taper Easy",n:"7:00/km · light"}, 3:{t:"tempo",d:6,l:"Taper Tempo",n:"WU + 20 min @ 6:00/km + CD"}, 5:{t:"strides",d:5,l:"Pre-Race Shake-out",n:"Easy jog + 4×100 m strides"}, 0:{t:"race",d:21.1,l:"RACE DAY",n:"Baden HM · Target 2:20–2:25"}}
 ];
 var PLAN_START = new Date(2026,5,29); // Jun 29 2026
- 
+
 var PNAME = {1:"Foundation",2:"Development",3:"Peak",4:"Taper"};
 var TCOL = {
   easy:{bg:"var(--green-bg)",bd:"var(--green-bd)",tx:"var(--green-tx)"},
@@ -156,9 +156,9 @@ var MEALS = [
 var MEALKEY = {blue:"var(--blue-bg)|var(--blue-bd)|var(--blue-tx)",amber:"var(--amber-bg)|var(--amber-bd)|var(--amber-tx)",
   green:"var(--green-bg)|var(--green-bd)|var(--green-tx)",violet:"var(--violet-bg)|var(--violet-bd)|var(--violet-tx)",
   rose:"var(--rose-bg)|var(--rose-bd)|var(--rose-tx)"};
- 
+
 /* ─────────────────────────  HELPERS  ───────────────────────── */
- 
+
 function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function d2s(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function esc(s){ var d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
@@ -176,9 +176,9 @@ function fmtDate(ds){ return new Date(ds+"T12:00:00").toLocaleDateString("en-GB"
 function weekMon(wk){ return new Date(PLAN_START.getTime()+(wk-1)*7*86400000); }
 function uid(){ return Date.now()+Math.floor(Math.random()*1000); }
 function toNum(v){ if(v==null) return 0; return parseFloat(String(v).replace(",", ".")) || 0; }
- 
+
 /* ─────────────────────────  STATE + PERSISTENCE  ───────────────────────── */
- 
+
 var STORAGE_KEY = "baden_marathon_journal_v1";
 var state = { runs: [], wkts: [] };
 var ui = {
@@ -194,7 +194,7 @@ var ui = {
   wf: { date: todayStr(), session:"A", done:{}, notes:"" },
   installBannerDismissed: false
 };
- 
+
 function loadState(){
   try{
     var raw = localStorage.getItem(STORAGE_KEY);
@@ -206,9 +206,9 @@ function saveState(){
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify({runs:state.runs, workouts:state.wkts})); return true; }
   catch(e){ return false; }
 }
- 
+
 /* ─────────────────────────  CSV  ───────────────────────── */
- 
+
 var CSV_COLS = ["entry_type","id","date","week","label","run_type","plan_km","km","mins","secs","pace","feeling","session","phase","exercises_done","exercises_total","notes"];
 function csvEscape(v){
   if(v===null||v===undefined) v="";
@@ -303,9 +303,9 @@ function importCSVFile(file){
   };
   reader.readAsText(file);
 }
- 
+
 /* ─────────────────────────  ACTIONS  ───────────────────────── */
- 
+
 function flash(msg,dur){
   ui.toastMsg=msg;
   if(ui.toastTimer) clearTimeout(ui.toastTimer);
@@ -317,7 +317,7 @@ function renderToast(){
   if(!el) return;
   el.innerHTML = ui.toastMsg ? '<div class="toast">'+esc(ui.toastMsg)+'</div>' : "";
 }
- 
+
 function onRunFieldInput(el, field){
   ui.rf[field] = el.value;
   var pace = document.getElementById("pacePreview");
@@ -336,7 +336,7 @@ function onRunFieldInput(el, field){
     btn.onclick = has ? saveRun : null;
   }
 }
- 
+
 function saveRun(){
   if(!ui.rf.dist){ return; }
   var pi=planFor(ui.rf.date);
@@ -389,21 +389,21 @@ function getPastSessions(){
   }
   return out.reverse();
 }
- 
+
 /* ─────────────────────────  RENDER: HOME  ───────────────────────── */
- 
+
 function renderHome(){
   var today=todayStr(); var ti=planFor(today);
   var totalKm = state.runs.reduce(function(s,r){return s+(r.km||0);},0);
   var longest = state.runs.length ? Math.max.apply(null, state.runs.map(function(r){return r.km||0;})) : 0;
   var html="";
- 
+
   if(!ui.installBannerDismissed && !window.matchMedia('(display-mode: standalone)').matches){
     html += '<div class="install-banner"><div style="font-weight:700;font-size:13px;color:#1E40AF;margin-bottom:4px;">📲 Install this as an app</div>'+
       '<div style="font-size:12px;color:#1E3A8A;line-height:1.6;">Open the browser menu and tap <strong>Add to Home Screen</strong> (or <strong>Install app</strong>). It\'ll launch full-screen, just like a native app.</div>'+
       '<button onclick="ui.installBannerDismissed=true; render();" style="margin-top:8px;background:none;border:none;color:#1E40AF;font-size:11px;font-weight:700;cursor:pointer;padding:0;">Got it, dismiss</button></div>';
   }
- 
+
   if(state.runs.length===0 && state.wkts.length===0){
     html += '<div class="card" style="background:var(--blue-bg);border:1px solid var(--blue-bd);">'+
       '<div style="font-weight:700;font-size:13px;color:#1E40AF;margin-bottom:5px;">Getting started</div>'+
@@ -411,9 +411,9 @@ function renderHome(){
       '2. Tap <strong>Journal</strong> to log runs and workouts — saved automatically on this device<br>'+
       '3. Use Export/Import CSV in Journal to back up or move your data</div></div>';
   }
- 
+
   html += '<div class="section-label">'+esc(new Date(today+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"}))+'</div>';
- 
+
   if(!ti){
     html += '<div class="card" style="text-align:center;color:var(--sub);">'+(new Date(today)<PLAN_START?"Plan starts June 29":"Plan complete — well done!")+'</div>';
   } else if(!ti.run && !ti.str){
@@ -442,7 +442,7 @@ function renderHome(){
         '</div><div style="font-size:12px;color:var(--sub);margin-top:3px;">Phase '+ti.ph+' · '+ti.str.exers.length+' exercises · ~40 min</div></div>';
     }
   }
- 
+
   if(ti){
     var wkNum=ti.week; var mon=weekMon(wkNum);
     var days=["M","T","W","T","F","S","S"];
@@ -464,7 +464,7 @@ function renderHome(){
     }
     html += '</div></div>';
   }
- 
+
   var past = getPastSessions();
   var missing = past.filter(function(s){return !s.logged;}).length;
   if(past.length>0){
@@ -485,7 +485,7 @@ function renderHome(){
     });
     html += '</div>';
   }
- 
+
   html += '<div class="section-label">Recent Activity</div>';
   var allEntries = state.runs.map(function(r){return Object.assign({},r,{et:"run"});})
     .concat(state.wkts.map(function(w){return Object.assign({},w,{et:"wkt"});}))
@@ -497,7 +497,7 @@ function renderHome(){
   }
   return html;
 }
- 
+
 function runCardHTML(e){
   var c=TCOL[e.type]||TCOL.easy;
   var feel=["💀","😓","😐","😊","🔥"][(e.feeling||3)-1];
@@ -528,14 +528,14 @@ function wktCardHTML(e){
     '</div><button onclick="ui.confirmDel={type:\'wkt\',id:'+e.id+'};render();" style="background:none;border:none;color:#D1D5DB;cursor:pointer;font-size:16px;padding:2px 4px;flex-shrink:0;">✕</button>'+
     '</div></div>';
 }
- 
+
 /* ─────────────────────────  RENDER: PLAN  ───────────────────────── */
- 
+
 function renderPlan(){
   var offsetMap = {1:0, 3:2, 5:4, 0:6};
   var labels = {1:"Mon", 3:"Wed", 5:"Fri", 0:"Sun"};
   var totalPlanned=0, totalLogged=0, weeksHtml="";
- 
+
   PLAN.forEach(function(wp){
     var mon = weekMon(wp.w);
     var dayInfos = [1,3,5,0].map(function(dow){
@@ -550,7 +550,7 @@ function renderPlan(){
     var total = dayInfos.reduce(function(s,d){return s+d.run.d;},0).toFixed(1).replace(/\.0$/,"");
     var c0 = {1:"var(--blue-tx)",2:"var(--amber-tx)",3:"var(--rose-tx)",4:"var(--green-tx)"}[wp.ph];
     var isOpen = ui.planOpenWeek===wp.w;
- 
+
     weeksHtml += '<div class="card" style="padding:0;overflow:hidden;'+(allDone?"border:1px solid var(--green-bd);":"")+'">'+
       '<button class="accordion-hd" onclick="ui.planOpenWeek = (ui.planOpenWeek==='+wp.w+') ? null : '+wp.w+'; render();">'+
       '<div style="width:36px;height:36px;border-radius:50%;background:'+(allDone?"#16A34A":"#F3F4F6")+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:'+(allDone?"#fff":c0)+';flex-shrink:0;">'+(allDone?"✓":"W"+wp.w)+'</div>'+
@@ -560,7 +560,7 @@ function renderPlan(){
       '<span class="pill" style="background:'+(allDone?"var(--green-bg)":loggedCount>0?"var(--amber-bg)":"#F3F4F6")+';color:'+(allDone?"var(--green-tx)":loggedCount>0?"var(--amber-tx)":"var(--mut)")+';">'+loggedCount+'/'+dayInfos.length+' logged</span>'+
       '</div></div>'+
       '<div style="color:#CBD5E0;font-size:18px;flex-shrink:0;">'+(isOpen?"▴":"▾")+'</div></button>';
- 
+
     if(isOpen){
       weeksHtml += '<div style="padding:0 16px 14px;border-top:1px solid var(--line);">';
       dayInfos.forEach(function(d){
@@ -577,21 +577,21 @@ function renderPlan(){
     }
     weeksHtml += '</div>';
   });
- 
+
   var pct = totalPlanned ? Math.round(totalLogged/totalPlanned*100) : 0;
   var html = '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'+
     '<span style="font-weight:700;font-size:13px;">Plan Progress</span>'+
     '<span style="font-size:12px;color:var(--orange);font-weight:700;">'+totalLogged+'/'+totalPlanned+' runs · '+pct+'%</span></div>'+
     '<div style="height:8px;background:#F3F4F6;border-radius:4px;overflow:hidden;">'+
     '<div style="height:100%;width:'+pct+'%;background:var(--orange);border-radius:4px;"></div></div></div>';
- 
+
   html += '<div class="section-label">12-Week Schedule to Baden Marathon</div>';
   html += weeksHtml;
   return html;
 }
- 
+
 /* ─────────────────────────  RENDER: TRAIN  ───────────────────────── */
- 
+
 function renderTrain(){
   var ph=ui.trainPhase;
   var html = '<div class="grid7" style="margin-bottom:16px;">';
@@ -603,28 +603,28 @@ function renderTrain(){
       '<div style="font-weight:700;font-size:12px;color:var(--blue-tx);">'+lbl+'</div><div style="font-size:11px;color:var(--mut);margin-top:2px;">'+weeks+'</div></button></div>';
   });
   html += '</div>';
- 
+
   html += '<div class="section-label">Session A — Core (Tuesday)</div>';
   CORE[ph].forEach(function(ex,i){
     html += '<div class="card" style="border-left:3px solid var(--blue-bd);"><div style="font-weight:700;font-size:14px;">'+esc(ex.split(" — ")[0])+'</div>'+
       '<div style="font-size:12px;color:var(--blue-tx);font-weight:600;margin-top:2px;">'+esc(ex.split(" — ")[1])+'</div></div>';
   });
- 
+
   html += '<div class="section-label" style="margin-top:16px;">Session B — Legs (Thursday)</div>';
   LEGS[ph].forEach(function(ex,i){
     html += '<div class="card" style="border-left:3px solid var(--amber-bd);"><div style="font-weight:700;font-size:14px;">'+esc(ex.split(" — ")[0])+'</div>'+
       '<div style="font-size:12px;color:var(--amber-tx);font-weight:600;margin-top:2px;">'+esc(ex.split(" — ")[1])+'</div></div>';
   });
- 
+
   html += '<div class="card" style="background:var(--green-bg);border:1px solid var(--green-bd);"><div style="font-weight:700;font-size:13px;color:var(--green-tx);">💡 Workout Tips</div>'+
     '<div style="font-size:12px;color:#555;margin-top:6px;line-height:1.7;">• Warm up with 5 min of light walking + leg swings<br>'+
     '• Phase 1: focus on perfect form, slow the reps<br>• Phase 2+: add resistance (backpack, water jugs)<br>'+
     '• Stop strength training 4 days before race day<br>• Heavy legs after leg day? An easy 10-min walk beats total rest</div></div>';
   return html;
 }
- 
+
 /* ─────────────────────────  RENDER: FUEL  ───────────────────────── */
- 
+
 function renderFuel(){
   var html = '<div class="card" style="background:var(--amber-bg);border:1px solid var(--amber-bd);"><div style="font-size:13px;color:#7D5200;">'+
     '<strong>The runner\'s golden rule:</strong> carbs are your fuel, protein repairs the engine. Don\'t cut either — especially during peak training.</div></div>';
@@ -642,9 +642,9 @@ function renderFuel(){
   });
   return html;
 }
- 
+
 /* ─────────────────────────  RENDER: JOURNAL  ───────────────────────── */
- 
+
 function renderJournal(){
   var html = '<div class="hdr-btns" style="margin-bottom:14px;justify-content:flex-end;display:flex;gap:7px;">'+
     '<button class="hbtn" style="background:#F3F4F6;color:var(--ink);border-color:var(--line);" onclick="document.getElementById(\'csvFileInput\').click();">📂 Import CSV</button>'+
@@ -654,18 +654,18 @@ function renderJournal(){
     '<button class="'+(ui.journalMode==="log"?"active":"")+'" onclick="ui.journalMode=\'log\';render();">+ Log</button>'+
     '<button class="'+(ui.journalMode==="history"?"active":"")+'" onclick="ui.journalMode=\'history\';render();">📊 History</button>'+
     '</div>';
- 
+
   if(ui.journalMode==="log") html += renderLogForm();
   else html += renderHistory();
   return html;
 }
- 
+
 function renderLogForm(){
   var html = '<div class="toggle-row" style="margin-bottom:18px;">'+
     '<button class="toggle-btn '+(ui.ltype==="run"?"active":"")+'" onclick="ui.ltype=\'run\';render();">🏃 Run</button>'+
     '<button class="toggle-btn '+(ui.ltype==="wkt"?"active":"")+'" onclick="ui.ltype=\'wkt\';render();">💪 Workout</button>'+
     '</div>';
- 
+
   if(ui.ltype==="run"){
     var pi=planFor(ui.rf.date);
     html += '<div class="field"><span class="field-label">Date</span>'+
@@ -719,7 +719,7 @@ function renderLogForm(){
   }
   return html;
 }
- 
+
 function renderHistory(){
   var totalKm = state.runs.reduce(function(s,r){return s+(r.km||0);},0);
   var longest = state.runs.length ? Math.max.apply(null, state.runs.map(function(r){return r.km||0;})) : 0;
@@ -743,9 +743,9 @@ function renderHistory(){
   }
   return html;
 }
- 
+
 /* ─────────────────────────  MAIN RENDER  ───────────────────────── */
- 
+
 function render(){
   var totalKm = state.runs.reduce(function(s,r){return s+(r.km||0);},0);
   var app = document.getElementById("app");
@@ -755,13 +755,13 @@ function render(){
   else if(ui.tab==="train") body=renderTrain();
   else if(ui.tab==="fuel") body=renderFuel();
   else if(ui.tab==="journal") body=renderJournal();
- 
+
   var nav=[["home","🏠","Home"],["plan","📅","Plan"],["train","💪","Train"],["fuel","🥗","Fuel"],["journal","📓","Journal"]];
   var navHtml = nav.map(function(n){
     return '<button class="navbtn '+(ui.tab===n[0]?"active":"")+'" onclick="ui.tab=\''+n[0]+'\';render();">'+
       '<span class="ic">'+n[1]+'</span><span class="lb">'+n[2]+'</span></button>';
   }).join('');
- 
+
   var modalHtml = "";
   if(ui.confirmDel){
     modalHtml = '<div class="modal-bg"><div class="modal"><div style="font-size:28px;margin-bottom:8px;">🗑</div>'+
@@ -770,7 +770,7 @@ function render(){
       '<div class="btn-row"><button class="btn" style="background:#F3F4F6;color:#374151;" onclick="ui.confirmDel=null;render();">Cancel</button>'+
       '<button class="btn" style="background:#EF4444;" onclick="doDelete(\''+ui.confirmDel.type+'\','+ui.confirmDel.id+');">Delete</button></div></div></div>';
   }
- 
+
   app.innerHTML =
     '<div class="hdr"><div class="hdr-top"><div class="eyebrow">Baden Marathon · Sep 20, 2026</div>'+
     '<div class="sync"><span class="dot" style="background:#22C55E;"></span><span style="color:#86EFAC;">Saved on device</span></div></div>'+
@@ -783,12 +783,12 @@ function render(){
     '<div class="wrap">'+body+'</div>'+
     '<input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="if(this.files[0]) importCSVFile(this.files[0]); this.value=\'\';">'+
     '<div class="navbar">'+navHtml+'</div>';
- 
+
   renderToast();
 }
- 
+
 /* ─────────────────────────  BOOT  ───────────────────────── */
- 
+
 loadState();
 render();
 </script>
